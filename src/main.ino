@@ -4,13 +4,19 @@
 #include <FS.h>
 #include <Hash.h>
 #include <ESPAsyncTCP.h>
+#include <ESPAsyncUDP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
+#include "DataConfig.h"
+
 
 // SKETCH BEGIN
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
+DataConfig dc;
+AsyncClient aClient;
+AsyncUDP udp;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
   if(type == WS_EVT_CONNECT){
@@ -92,17 +98,86 @@ const char* http_username = "admin";
 const char* http_password = "admin";
 
 void setup(){
-  Serial.begin(115200);
+
+  // config
+  dc.load();
+
+  // uart
+  Serial.begin(dc.uartBaudRate);
   Serial.setDebugOutput(true);
-  WiFi.hostname(hostName);
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(hostName);
-  WiFi.begin(ssid, password);
-  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.printf("STA: Failed!\n");
-    WiFi.disconnect(false);
-    delay(1000);
-    WiFi.begin(ssid, password);
+
+  // wifi
+  //WiFi.hostname(hostName);
+  WiFi.mode((WiFiMode_t)dc.wifiMode);
+
+  switch(dc.wifiMode) {
+
+    case WIFI_AP_STA:
+
+    WiFi.softAP(dc.wifiLocalSSID);
+    WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
+    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+      Serial.printf("STA: Failed!\n");
+      WiFi.disconnect(false);
+      delay(1000);
+      WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
+    }
+
+    break;
+
+    case WIFI_AP:
+
+    WiFi.softAP(dc.wifiLocalSSID);
+
+    break;
+
+    case WIFI_STA:  
+
+    WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
+    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+      Serial.printf("STA: Failed!\n");
+      WiFi.disconnect(false);
+      delay(1000);
+      WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
+    }
+
+    break;
+
+  }
+
+  // tcp
+  // AsyncServer aServer;
+  switch(dc.tcpMode) {
+
+    case 1:
+    // client.onConnect();
+    // client.onDisconnect();
+     aClient.connect(IPAddress(dc.tcpRemoteIP), dc.tcpRemotePort);
+    break;
+
+    case 2:
+    // server.onConnect();
+    // server.onDisconnect();
+    // server.onData();
+    //server.begin();
+    break;
+  }
+
+  // udp
+  switch (dc.udpMode) {
+
+    case 1:
+    if(udp.connect(IPAddress(dc.udpIP), dc.udpPort)) {
+      udp.onPacket([](AsyncUDPPacket packet) {
+          Serial.write(packet.data(), packet.length());
+      });
+    break;
+
+    case 2:
+
+    break;
+    }
+
   }
 
   //Send OTA events to the browser
@@ -207,5 +282,17 @@ void setup(){
 }
 
 void loop(){
+  
+  uint8_t buf[2048];
+  size_t len = Serial.readBytes(buf, 2048);
+
+  if (dc.udpMode) {
+    udp.writeTo(buf, len, IPAddress(192,168,0,34), 1234);
+  }
+
+  if (dc.tcpMode) {
+
+  }
+  
   ArduinoOTA.handle();
 }
