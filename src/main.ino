@@ -112,7 +112,7 @@ void setup(){
 
   switch(dc.wifiMode) {
 
-    case WIFI_AP_STA:
+    case dc.WIFI_MODE_AP_STATION:
 
     WiFi.softAP(dc.wifiLocalSSID);
     WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
@@ -125,13 +125,13 @@ void setup(){
 
     break;
 
-    case WIFI_AP:
+    case dc.WIFI_MODE_AP:
 
     WiFi.softAP(dc.wifiLocalSSID);
 
     break;
 
-    case WIFI_STA:  
+    case dc.WIFI_MODE_STATION:  
 
     WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -149,13 +149,13 @@ void setup(){
   // AsyncServer aServer;
   switch(dc.tcpMode) {
 
-    case 1:
+    case dc.TCP_MODE_CLIENT:
     // client.onConnect();
     // client.onDisconnect();
      aClient.connect(IPAddress(dc.tcpRemoteIP), dc.tcpRemotePort);
     break;
 
-    case 2:
+    case dc.TCP_MODE_SERVER:
     // server.onConnect();
     // server.onDisconnect();
     // server.onData();
@@ -166,15 +166,14 @@ void setup(){
   // udp
   switch (dc.udpMode) {
 
-    case 1:
-    if(udp.connect(IPAddress(dc.udpIP), dc.udpPort)) {
+    case dc.UDP_MODE_SERVER:
+    break;
+
+    case dc.UDP_MODE_CLIENT:
+    if(udp.connect(IPAddress(dc.udpRemoteIP), dc.udpRemotePort)) {
       udp.onPacket([](AsyncUDPPacket packet) {
           Serial.write(packet.data(), packet.length());
       });
-    break;
-
-    case 2:
-
     break;
     }
 
