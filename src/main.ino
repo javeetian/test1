@@ -112,26 +112,13 @@ void setup(){
 
   switch(dc.wifiMode) {
 
-    case dc.WIFI_MODE_AP_STATION:
-
-    WiFi.softAP(dc.wifiLocalSSID);
-    WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
-    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-      Serial.printf("STA: Failed!\n");
-      WiFi.disconnect(false);
-      delay(1000);
-      WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
-    }
-
-    break;
-
     case dc.WIFI_MODE_AP:
 
-    WiFi.softAP(dc.wifiLocalSSID);
+    WiFi.softAP(dc.wifiLocalSSID, dc.wifiLocalPassword);
 
     break;
 
-    case dc.WIFI_MODE_STATION:  
+    case dc.WIFI_MODE_STATION:
 
     WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -143,6 +130,18 @@ void setup(){
 
     break;
 
+    case dc.WIFI_MODE_AP_STATION:
+    
+        WiFi.softAP(dc.wifiLocalSSID, dc.wifiLocalPassword);
+        WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
+        if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+          Serial.printf("STA: Failed!\n");
+          WiFi.disconnect(false);
+          delay(1000);
+          WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
+        }
+    
+        break;
   }
 
   // tcp
@@ -150,9 +149,17 @@ void setup(){
   switch(dc.tcpMode) {
 
     case dc.TCP_MODE_CLIENT:
-    // client.onConnect();
-    // client.onDisconnect();
-     aClient.connect(IPAddress(dc.tcpRemoteIP), dc.tcpRemotePort);
+    aClient.setRxTimeout(0);
+    aClient.onError([](void *r, AsyncClient* c, int8_t error){ });
+    aClient.onAck([](void *r, AsyncClient* c, size_t len, uint32_t time){});
+    aClient.onDisconnect([](void *r, AsyncClient* c){});
+    aClient.onTimeout([](void *r, AsyncClient* c, uint32_t time){});
+    aClient.onData([](void *r, AsyncClient* c, void *buf, size_t len){
+      Serial.write((const uint8_t *)buf, len);
+    });
+    aClient.onPoll([](void *r, AsyncClient* c){});
+  
+     aClient.connect(dc.tcpHost, dc.tcpRemotePort);
     break;
 
     case dc.TCP_MODE_SERVER:
