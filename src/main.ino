@@ -15,8 +15,9 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 DataConfig dc;
+//AsyncServer aServer(88);
 AsyncClient aClient;
-AsyncUDP udp;
+AsyncUDP aUDP;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
   if(type == WS_EVT_CONNECT){
@@ -145,7 +146,6 @@ void setup(){
   }
 
   // tcp
-  // AsyncServer aServer;
   switch(dc.tcpMode) {
 
     case dc.TCP_MODE_CLIENT:
@@ -163,10 +163,9 @@ void setup(){
     break;
 
     case dc.TCP_MODE_SERVER:
-    // server.onConnect();
-    // server.onDisconnect();
-    // server.onData();
-    //server.begin();
+    //aServer.setPort(dc.tcpLocalPort);
+    //aServer.begin();
+    
     break;
   }
 
@@ -174,11 +173,16 @@ void setup(){
   switch (dc.udpMode) {
 
     case dc.UDP_MODE_SERVER:
+    if(aUDP.listen(dc.udpLocalPort)) {
+      aUDP.onPacket([](AsyncUDPPacket packet) {
+          Serial.write(packet.data(), packet.length());
+      });
+    }
     break;
 
     case dc.UDP_MODE_CLIENT:
-    if(udp.connect(IPAddress(dc.udpRemoteIP), dc.udpRemotePort)) {
-      udp.onPacket([](AsyncUDPPacket packet) {
+    if(aUDP.connect(IPAddress(dc.udpRemoteIP), dc.udpRemotePort)) {
+      aUDP.onPacket([](AsyncUDPPacket packet) {
           Serial.write(packet.data(), packet.length());
       });
     break;
@@ -290,14 +294,37 @@ void setup(){
 void loop(){
   
   uint8_t buf[2048];
-  size_t len = Serial.readBytes(buf, 2048);
-
-  if (dc.udpMode) {
-    udp.writeTo(buf, len, IPAddress(192,168,0,34), 1234);
-  }
-
+  uint8_t *p = buf;
+  size_t tLen = Serial.readBytes(buf, 2048);
+  size_t len = tLen;
   if (dc.tcpMode) {
-
+    size_t index;
+    switch(dc.tcpMode) {
+      case dc.TCP_MODE_CLIENT:
+      index = aClient.write((const char *)p, len);
+      while ((index < len) && (index > 0)) {
+        len -= index;
+        p += index;
+        index = aClient.write((const char *)p, len);
+      }
+      break;
+      case dc.TCP_MODE_SERVER:
+      //index = aServer.write((const char *)p, len);
+      // while ((index < len) && (index > 0)) {
+      //   len -= index;
+      //   p += index;
+        //index = aServer.write((const char *)p, len);
+      // }
+      break;
+    }
+  }
+  else if (dc.udpMode) {
+    size_t index = aUDP.write(p, len);
+    while ((index < len) && (index > 0)) {
+      len -= index;
+      p += index;
+      index = aUDP.write(p, len);
+    }
   }
   
   ArduinoOTA.handle();
