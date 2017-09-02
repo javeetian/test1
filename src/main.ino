@@ -104,23 +104,25 @@ void setup(){
   dc.load();
 
   // uart
-  Serial.begin(dc.uartBaudRate);
+  Serial.begin(115200);
   Serial.setDebugOutput(true);
-
+#if 1
   // wifi
-  //WiFi.hostname(hostName);
+  
   WiFi.mode((WiFiMode_t)dc.wifiMode);
 
   switch(dc.wifiMode) {
 
     case dc.WIFI_MODE_AP:
 
+    WiFi.hostname(dc.wifiLocalSSID);
     WiFi.softAP(dc.wifiLocalSSID, dc.wifiLocalPassword);
 
     break;
 
     case dc.WIFI_MODE_STATION:
-
+    
+    WiFi.hostname(dc.wifiLocalSSID);
     WiFi.begin(dc.wifiRemoteSSID, dc.wifiRemotePassword);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
       Serial.printf("STA: Failed!\n");
@@ -189,6 +191,8 @@ void setup(){
     }
 
   }
+  Serial.printf("baudrate: %d", dc.uartBaudRate);
+  #endif
 
   //Send OTA events to the browser
   ArduinoOTA.onStart([]() { events.send("Update Start", "ota"); });
@@ -292,7 +296,7 @@ void setup(){
 }
 
 void loop(){
-  
+  #if 1
   uint8_t buf[2048];
   uint8_t *p = buf;
   size_t tLen = Serial.readBytes(buf, 2048);
@@ -326,6 +330,6 @@ void loop(){
       index = aUDP.write(p, len);
     }
   }
-  
+  #endif
   ArduinoOTA.handle();
 }
