@@ -183,10 +183,10 @@ bool DataConfig::createConfig(void)
         wifiMask = wifi["mask"] = 0xffffff01;
         wifiDNS = wifi["dns"] = 0x08080808;
 
-        strcpy_P(wifiRemoteSSID, "noway");
-        wifi["remoteSSID"] = "noway";
-        strcpy_P(wifiRemotePassword, "dsp12345");
-        wifi["remotePassword"] = "dsp12345";
+        strcpy_P(wifiRemoteSSID, "FruitFamily");
+        wifi["remoteSSID"] = "FruitFamily";
+        strcpy_P(wifiRemotePassword, "LN520tjw");
+        wifi["remotePassword"] = "LN520tjw";
 
         // tcp
 
@@ -194,17 +194,19 @@ bool DataConfig::createConfig(void)
         tcpMode = tcp["mode"] = (uint8_t) TCP_MODE_CLIENT;
         tcpLocalIP = tcp["ip"] = 0xc0a80001;
         tcpLocalPort = tcp["port"] = 1234;
-        tcp["host"] = "192.168.8.119";
-        strcpy_P(tcpHost, "192.168.8.119");
-        tcpRemoteIP = tcp["ip"] = 0xc0a80877;
+        tcp["host"] = "192.168.0.14";
+        strcpy_P(tcpHost, "192.168.0.14");
+        tcpRemoteIP = tcp["ip"] = 0xc0a8000e;
         tcpRemotePort = tcp["port"] = 1234;
 
         // udp
         
         JsonObject& udp = root.createNestedObject("udp");
         udpMode = udp["mode"] = (uint8_t) UDP_MODE_SERVER;
-        udpLocalIP = udp["ip"] = 0xc0a80001;
+        udpLocalIP = udp["ip"] = 0xc0a80003;
         udpLocalPort = udp["port"] = 1234;
+        udpRemoteIP = tcp["ip"] = 0xc0a8000e;
+        udpRemotePort = tcp["port"] = 12345;
 
         String json;
         root.printTo(json);

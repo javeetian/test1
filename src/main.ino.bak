@@ -8,7 +8,10 @@
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
 #include "DataConfig.h"
+#include "CoogleIOT.h"
 
+CoogleIOT *iot;
+PubSubClient *mqtt;
 
 // SKETCH BEGIN
 AsyncWebServer server(80);
@@ -104,9 +107,14 @@ void setup(){
   dc.load();
 
   // uart
-  Serial.begin(115200);
-  Serial.setDebugOutput(true);
-#if 1
+  //Serial.begin(dc.uartBaudRate);
+  //Serial.setDebugOutput(true);
+
+	iot = new CoogleIOT(LED_BUILTIN);
+  
+    iot->enableSerial(SERIAL_BAUD);
+    iot->initialize();
+
   // wifi
   
   WiFi.mode((WiFiMode_t)dc.wifiMode);
@@ -192,7 +200,6 @@ void setup(){
 
   }
   Serial.printf("baudrate: %d", dc.uartBaudRate);
-  #endif
 
   //Send OTA events to the browser
   ArduinoOTA.onStart([]() { events.send("Update Start", "ota"); });
@@ -296,12 +303,12 @@ void setup(){
 }
 
 void loop(){
-  #if 1
+
   uint8_t buf[2048];
   uint8_t *p = buf;
   size_t tLen = Serial.readBytes(buf, 2048);
   size_t len = tLen;
-  if (dc.tcpMode) {
+  if (0) {
     size_t index;
     switch(dc.tcpMode) {
       case dc.TCP_MODE_CLIENT:
@@ -323,6 +330,7 @@ void loop(){
     }
   }
   else if (dc.udpMode) {
+    Serial.printf("len, %d\n", len);
     size_t index = aUDP.write(p, len);
     while ((index < len) && (index > 0)) {
       len -= index;
@@ -330,6 +338,7 @@ void loop(){
       index = aUDP.write(p, len);
     }
   }
-  #endif
+
+	iot->loop();
   ArduinoOTA.handle();
 }

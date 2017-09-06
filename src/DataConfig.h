@@ -30,7 +30,7 @@ class DataConfig {
         String configFile = "/config.json";
 
         // uart
-        u16 uartBaudRate;
+        u32 uartBaudRate;
         
         // wifi
         u8 wifiMode;
