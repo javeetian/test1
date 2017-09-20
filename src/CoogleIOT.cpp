@@ -1037,3 +1037,297 @@ CoogleIOT& CoogleIOT::enableSerial(int baud)
     _serial = true;
     return *this;
 }
+
+CoogleIOT& CoogleIOT::setBaudrate(int val)
+{
+
+	if(!eeprom.writeInt(BAUDRATE_ADDR_START, val)) {
+		error("Failed to write Baudrate to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getBaudrate()
+{
+	int val;
+	if(!eeprom.readInt(BAUDRATE_ADDR_START, &val)) {
+		error("Failed to read Baudrate from EEPROM");
+	}
+	if (val == 115200
+	|| val == 38400
+	|| val == 9600)
+		return val;
+	else
+		return 115200;
+}
+
+CoogleIOT& CoogleIOT::setWiFiMode(int val)
+{
+
+	if(!eeprom.writeInt(WIFI_MODE_ADDR_START, val)) {
+		error("Failed to write WiFi mode to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getWiFiMode()
+{
+	int val;
+	if(!eeprom.readInt(WIFI_MODE_ADDR_START, &val)) {
+		error("Failed to read WiFi mode from EEPROM");
+	}
+	if (val == WIFI_MODE_AP
+		|| val == WIFI_MODE_STATION
+		|| val == WIFI_MODE_AP_STATION)
+		return val;
+	else
+		return WIFI_MODE_AP;
+}
+
+CoogleIOT& CoogleIOT::setWiFiLocalSSID(String s)
+{
+	if(s.length() > WIFI_LOCAL_SSID_ADDR_END - WIFI_LOCAL_SSID_ADDR_START) {
+		warn("Attempted to write beyond max length for local SSID");
+		return *this;
+	}
+
+	if(!eeprom.writeString(WIFI_LOCAL_SSID_ADDR_START, s)) {
+		error("Failed to write local SSID to EEPROM");
+	}
+
+	return *this;
+}
+
+String CoogleIOT::getWiFiLocalSSID()
+{
+	char APName[WIFI_LOCAL_SSID_ADDR_END - WIFI_LOCAL_SSID_ADDR_START];
+
+	if(!eeprom.readString(WIFI_LOCAL_SSID_ADDR_START, APName, WIFI_LOCAL_SSID_ADDR_END - WIFI_LOCAL_SSID_ADDR_START)) {
+		error("Failed to read local SSID from EEPROM");
+	}
+
+	String retval(APName);
+	return filterAscii(retval);
+}
+
+CoogleIOT& CoogleIOT::setWiFiLocalPassword(String s)
+{
+	if(s.length() > WIFI_LOCAL_PASSWORD_ADDR_END - WIFI_LOCAL_PASSWORD_ADDR_START) {
+		warn("Attempted to write beyond max length for local password");
+		return *this;
+	}
+
+	if(!eeprom.writeString(WIFI_LOCAL_PASSWORD_ADDR_START, s)) {
+		error("Failed to write local password to EEPROM");
+	}
+
+	return *this;
+}
+
+String CoogleIOT::getWiFiLocalPassword()
+{
+	char password[WIFI_LOCAL_PASSWORD_ADDR_END - WIFI_LOCAL_PASSWORD_ADDR_START];
+
+	if(!eeprom.readString(WIFI_LOCAL_PASSWORD_ADDR_START, password, WIFI_LOCAL_PASSWORD_ADDR_END - WIFI_LOCAL_PASSWORD_ADDR_START)) {
+		error("Failed to read local password from EEPROM");
+	}
+
+	String retval(password);
+	return filterAscii(retval);
+}
+
+
+CoogleIOT& CoogleIOT::setWiFiRemoteSSID(String s)
+{
+	if(s.length() > WIFI_REMOTE_SSID_ADDR_END - WIFI_REMOTE_SSID_ADDR_START) {
+		warn("Attempted to write beyond max length for remote SSID");
+		return *this;
+	}
+
+	if(!eeprom.writeString(WIFI_REMOTE_SSID_ADDR_START, s)) {
+		error("Failed to write remote SSID to EEPROM");
+	}
+
+	return *this;
+}
+
+String CoogleIOT::getWiFiRemoteSSID()
+{
+	char APName[WIFI_REMOTE_SSID_ADDR_END - WIFI_REMOTE_SSID_ADDR_START];
+
+	if(!eeprom.readString(WIFI_REMOTE_SSID_ADDR_START, APName, WIFI_REMOTE_SSID_ADDR_END - WIFI_REMOTE_SSID_ADDR_START)) {
+		error("Failed to read remote SSID from EEPROM");
+	}
+
+	String retval(APName);
+	return filterAscii(retval);
+}
+
+CoogleIOT& CoogleIOT::setWiFiRemotePassword(String s)
+{
+	if(s.length() > WIFI_REMOTE_PASSWORD_ADDR_END - WIFI_REMOTE_PASSWORD_ADDR_START) {
+		warn("Attempted to write beyond max length for remote password");
+		return *this;
+	}
+
+	if(!eeprom.writeString(WIFI_REMOTE_PASSWORD_ADDR_START, s)) {
+		error("Failed to write remote password to EEPROM");
+	}
+
+	return *this;
+}
+
+String CoogleIOT::getWiFiRemotePassword()
+{
+	char password[WIFI_REMOTE_PASSWORD_ADDR_END - WIFI_REMOTE_PASSWORD_ADDR_START];
+
+	if(!eeprom.readString(WIFI_REMOTE_PASSWORD_ADDR_START, password, WIFI_REMOTE_PASSWORD_ADDR_END - WIFI_REMOTE_PASSWORD_ADDR_START)) {
+		error("Failed to read remote password from EEPROM");
+	}
+
+	String retval(password);
+	return filterAscii(retval);
+}
+
+
+CoogleIOT& CoogleIOT::setTCPMode(int val)
+{
+
+	if(!eeprom.writeInt(TCP_MODE_ADDR_START, val)) {
+		error("Failed to write TCP mode to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getTCPMode()
+{
+	int val;
+	if(!eeprom.readInt(TCP_MODE_ADDR_START, &val)) {
+		error("Failed to read TCP mode from EEPROM");
+	}
+	if (val == TCP_MODE_CLIENT
+		|| val == TCP_MODE_SERVER)
+		return val;
+	else
+		return TCP_MODE_SERVER;
+}
+
+CoogleIOT& CoogleIOT::setTCPRemoteHost(String s)
+{
+	if(s.length() > TCP_REMOTE_HOST_ADDR_END - TCP_REMOTE_HOST_ADDR_START) {
+		warn("Attempted to write beyond max length for TCP remote host");
+		return *this;
+	}
+
+	if(!eeprom.writeString(TCP_REMOTE_HOST_ADDR_START, s)) {
+		error("Failed to write TCP remote host to EEPROM");
+	}
+
+	return *this;
+}
+
+String CoogleIOT::getTCPRemoteHost()
+{
+	char host[TCP_REMOTE_HOST_ADDR_END - TCP_REMOTE_HOST_ADDR_START];
+
+	if(!eeprom.readString(TCP_REMOTE_HOST_ADDR_START, host, TCP_REMOTE_HOST_ADDR_END - TCP_REMOTE_HOST_ADDR_START)) {
+		error("Failed to read TCP remote host from EEPROM");
+	}
+
+	String retval(host);
+	return filterAscii(retval);
+}
+
+
+CoogleIOT& CoogleIOT::setTCPRemotePort(int val)
+{
+
+	if(!eeprom.writeInt(TCP_REMOTE_PORT_ADDR_START, val)) {
+		error("Failed to write TCP remote port to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getTCPRemotePort()
+{
+	int val;
+	if(!eeprom.readInt(TCP_REMOTE_PORT_ADDR_START, &val)) {
+		error("Failed to read TCP remote port from EEPROM");
+	}
+
+	return val;
+}
+
+CoogleIOT& CoogleIOT::setUDPMode(int val)
+{
+
+	if(!eeprom.writeInt(UDP_MODE_ADDR_START, val)) {
+		error("Failed to write UDP mode to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getUDPMode()
+{
+	int val;
+	if(!eeprom.readInt(UDP_MODE_ADDR_START, &val)) {
+		error("Failed to read UDP mode from EEPROM");
+	}
+	if (val == UDP_MODE_CLIENT
+		|| val == UDP_MODE_SERVER)
+		return val;
+	else
+		return UDP_MODE_SERVER;
+}
+
+CoogleIOT& CoogleIOT::setUDPRemoteHost(String s)
+{
+	if(s.length() > UDP_REMOTE_HOST_ADDR_END - UDP_REMOTE_HOST_ADDR_START) {
+		warn("Attempted to write beyond max length for UDP remote host");
+		return *this;
+	}
+
+	if(!eeprom.writeString(UDP_REMOTE_HOST_ADDR_START, s)) {
+		error("Failed to write UDP remote host to EEPROM");
+	}
+
+	return *this;
+}
+
+String CoogleIOT::getUDPRemoteHost()
+{
+	char host[UDP_REMOTE_HOST_ADDR_END - UDP_REMOTE_HOST_ADDR_START];
+
+	if(!eeprom.readString(UDP_REMOTE_HOST_ADDR_START, host, UDP_REMOTE_HOST_ADDR_END - UDP_REMOTE_HOST_ADDR_START)) {
+		error("Failed to read UDP remote host from EEPROM");
+	}
+
+	String retval(host);
+	return filterAscii(retval);
+}
+
+
+CoogleIOT& CoogleIOT::setUDPRemotePort(int val)
+{
+
+	if(!eeprom.writeInt(UDP_REMOTE_PORT_ADDR_START, val)) {
+		error("Failed to write UDP remote port to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getUDPRemotePort()
+{
+	int val;
+	if(!eeprom.readInt(UDP_REMOTE_PORT_ADDR_START, &val)) {
+		error("Failed to read UDP remote port from EEPROM");
+	}
+
+	return val;
+}

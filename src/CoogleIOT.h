@@ -61,6 +61,26 @@ class CoogleIOTWebserver;
 class CoogleIOT
 {
     public:
+        
+        enum _wifiMode {
+            WIFI_MODE_NONE,
+            WIFI_MODE_AP,
+            WIFI_MODE_STATION,
+            WIFI_MODE_AP_STATION
+        } wifiMode_t;
+        
+        enum _tcpMode {
+            TCP_MODE_NONE,
+            TCP_MODE_SERVER,
+            TCP_MODE_CLIENT
+        } tcpMode_t;
+
+        enum _udpMode {
+            UDP_MODE_NONE,
+            UDP_MODE_SERVER,
+            UDP_MODE_CLIENT
+        } udpMode_t;
+        
 		bool firmwareUpdateTick = false;
 		bool _restarting = false;
 
@@ -106,6 +126,31 @@ class CoogleIOT
         CoogleIOT& setAPPassword(String);
         CoogleIOT& setFirmwareUpdateUrl(String);
         CoogleIOT& syncNTPTime(int, int);
+
+        CoogleIOT& setBaudrate(int);
+        int getBaudrate();
+        CoogleIOT& setWiFiMode(int);
+        int getWiFiMode();
+        CoogleIOT& setWiFiLocalSSID(String);
+        String getWiFiLocalSSID();
+        CoogleIOT& setWiFiLocalPassword(String);
+        String getWiFiLocalPassword();
+        CoogleIOT& setWiFiRemoteSSID(String);
+        String getWiFiRemoteSSID();
+        CoogleIOT& setWiFiRemotePassword(String);
+        String getWiFiRemotePassword();
+        CoogleIOT& setTCPMode(int);
+        int getTCPMode();
+        CoogleIOT& setTCPRemoteHost(String);
+        String getTCPRemoteHost();
+        CoogleIOT& setTCPRemotePort(int);
+        int getTCPRemotePort();
+        CoogleIOT& setUDPMode(int);
+        int getUDPMode();
+        CoogleIOT& setUDPRemoteHost(String);
+        String getUDPRemoteHost();
+        CoogleIOT& setUDPRemotePort(int);
+        int getUDPRemotePort();
 
         CoogleIOT& warn(String);
         CoogleIOT& error(String);

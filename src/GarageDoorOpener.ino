@@ -85,7 +85,7 @@ void setup()
 {
 	iot = new CoogleIOT(LED_BUILTIN);
 
-	iot->enableSerial(SERIAL_BAUD);
+	iot->enableSerial(iot->getBaudrate());
 	iot->initialize();
 
 	pinMode(OPEN_SWTICH_PIN, OUTPUT);
