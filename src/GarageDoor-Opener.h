@@ -1,6 +1,5 @@
 
 #ifndef GARAGEDOOR_OPENER_H
-#define OPEN_SWTICH_PIN
 
 typedef enum {
 	GD_UNKNOWN,

@@ -1331,3 +1331,132 @@ int CoogleIOT::getUDPRemotePort()
 
 	return val;
 }
+
+CoogleIOT& CoogleIOT::setUDPLocalPort(int val)
+{
+
+	if(!eeprom.writeInt(UDP_LOCAL_PORT_ADDR_START, val)) {
+		error("Failed to write UDP local port to EEPROM");
+	}
+
+	return *this;
+}
+
+int CoogleIOT::getUDPLocalPort()
+{
+	int val;
+	if(!eeprom.readInt(UDP_LOCAL_PORT_ADDR_START, &val)) {
+		error("Failed to read UDP local port from EEPROM");
+	}
+
+	return val;
+}
+
+bool CoogleIOT::connectToWiFi()
+{
+	
+	int wifiMode = getWiFiMode();
+	String lSSID = getWiFiLocalSSID();
+  	String lPassword = getWiFiLocalPassword();
+	String rSSID = getWiFiRemoteSSID();
+	String rPassword = getWiFiRemotePassword();
+
+  	WiFi.mode((WiFiMode_t)wifiMode);
+  
+	switch(wifiMode) {
+  
+	  case WIFI_MODE_AP:
+  
+	  WiFi.hostname(lSSID);
+	  WiFi.softAP(lSSID.c_str(), lPassword.c_str());
+  
+	  break;
+  
+	  case WIFI_MODE_STATION:
+	  
+	  //WiFi.hostname(lSSID);
+	  WiFi.begin(rSSID.c_str(), rPassword.c_str());
+	  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+		Serial.printf("STA: Failed!\n");
+		WiFi.disconnect(false);
+		delay(1000);
+		WiFi.begin(rSSID.c_str(), rPassword.c_str());
+	  }
+  
+	  break;
+  
+	  case WIFI_MODE_AP_STATION:
+	  
+		  WiFi.softAP(lSSID.c_str(), lPassword.c_str());
+		  WiFi.begin(rSSID.c_str(), rPassword.c_str());
+		  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+			Serial.printf("STA: Failed!\n");
+			WiFi.disconnect(false);
+			delay(1000);
+			WiFi.begin(rSSID.c_str(), rPassword.c_str());
+		  }
+	  
+		  break;
+	}
+	return true;
+}
+
+bool CoogleIOT::connectToTCP()
+{
+
+	int TCPMode = getTCPMode();
+	String rHost = getTCPRemoteHost();
+	int rPort = getTCPRemotePort();
+
+	switch(TCPMode) {
+		
+			case TCP_MODE_CLIENT:
+			aClient.setRxTimeout(0);
+			aClient.onError([](void *r, AsyncClient* c, int8_t error){ });
+			aClient.onAck([](void *r, AsyncClient* c, size_t len, uint32_t time){});
+			aClient.onDisconnect([](void *r, AsyncClient* c){});
+			aClient.onTimeout([](void *r, AsyncClient* c, uint32_t time){});
+			aClient.onData([](void *r, AsyncClient* c, void *buf, size_t len){
+			  Serial.write((const uint8_t *)buf, len);
+			});
+			aClient.onPoll([](void *r, AsyncClient* c){});
+		  
+			 aClient.connect(rHost.c_str(), rPort);
+			break;
+		
+			case TCP_MODE_SERVER:
+			//aServer.setPort(dc.tcpLocalPort);
+			//aServer.begin();
+			
+			break;
+		  }
+		  return true;
+}
+
+bool CoogleIOT::connectToUDP()
+{
+	int UDPMode = getUDPMode();
+	String rHost = getUDPRemoteHost();
+	int rPort = getUDPRemotePort();
+	int lPort = getUDPLocalPort();
+
+switch (UDPMode) {
+	
+		case UDP_MODE_SERVER:
+		if(aUDP.listen(lPort)) {
+		  aUDP.onPacket([](AsyncUDPPacket packet) {
+			  Serial.write(packet.data(), packet.length());
+		  });
+		}
+		break;
+	
+		case UDP_MODE_CLIENT:
+		if(aUDP.connect(IPAddress(0xc0440001), rPort)) {
+		  aUDP.onPacket([](AsyncUDPPacket packet) {
+			  Serial.write(packet.data(), packet.length());
+		  });
+		break;
+		}
+	  }
+	  return true;
+}

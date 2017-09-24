@@ -46,6 +46,9 @@
 
 #include <user_interface.h>
 
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncUDP.h>
+
 typedef enum {
 	DEBUG,
 	INFO,
@@ -151,6 +154,11 @@ class CoogleIOT
         String getUDPRemoteHost();
         CoogleIOT& setUDPRemotePort(int);
         int getUDPRemotePort();
+        CoogleIOT& setUDPLocalPort(int);
+        int getUDPLocalPort();
+        bool connectToWiFi();
+        bool connectToTCP();
+        bool connectToUDP();
 
         CoogleIOT& warn(String);
         CoogleIOT& error(String);
@@ -176,6 +184,8 @@ class CoogleIOT
         HTTPUpdateResult firmwareUpdateStatus;
         time_t now;
 
+        AsyncClient aClient;
+        AsyncUDP aUDP;
         DNSServer dnsServer;
         WiFiClient espClient;
         PubSubClient *mqttClient;
