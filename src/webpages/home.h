@@ -26,12 +26,12 @@
 const char WEBPAGE_Home[] PROGMEM = R"=====(
 <html>
   <head>
-    <title>CoogleIOT Firmware</title>
+    <title>ldos Firmware</title>
     <link href="/css" type="text/css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
-    <h3>CoogleIOT Device Setup</h3>
+    <h3>ldos Device Setup</h3>
     <div class="tabs" style="margin-top: 5px; margin-bottom: 5px;">
       <input type="radio" name="navtabs" id="tab1" checked="" aria-hidden="true">
       <label for="tab1" aria-hidden="true">WiFi</label>
@@ -40,53 +40,90 @@ const char WEBPAGE_Home[] PROGMEM = R"=====(
            <legend>Device Wireless Setup</legend>
              <p>Settings for the device WiFi (as AP)</p>
              <div class="input-group fluid">
-               <label aria-hidden="true" for="ap_name">Device AP SSID</label>
-               <input aria-hidden="true" type="text" value="{{ap_name}}" id="ap_name" placeholder="Device AP Name">
+               <label aria-hidden="true" for="wifi_local_ssid">Device AP SSID</label>
+               <input aria-hidden="true" type="text" value="{{wifi_local_ssid}}" id="wifi_local_ssid" placeholder="Device AP Name">
              </div>
              <div class="input-group fluid">
-               <label aria-hidden="true" for="ap_password">Device AP Password</label>
-               <input aria-hidden="true" type="password" value="{{ap_password}}" id="ap_password">
+               <label aria-hidden="true" for="wifi_local_password">Device AP Password</label>
+               <input aria-hidden="true" type="password" value="{{wifi_local_password}}" id="wifi_local_password">
              </div>
+               <div class="input-group fluid">
+                 <label aria-hidden="true" for="wifi_local_ip">Device IP</label>
+                 <input aria-hidden="true" value="{{wifi_local_ip}}" id="wifi_local_ip" placeholder="Device IP" type="text">
+               </div>
+               <div class="input-group fluid">
+                 <label aria-hidden="true" for="wifi_local_mask">Device Mask</label>
+                 <input aria-hidden="true" value="{{wifi_local_mask}}" id="wifi_local_mask" placeholder="Device Mask" type="text">
+               </div>
+               <div class="input-group fluid">
+                 <label aria-hidden="true" for="wifi_local_gateway">Device Gateway</label>
+                 <input aria-hidden="true" value="{{wifi_local_gateway}}" id="wifi_local_gateway" placeholder="Device Gateway" type="text">
+               </div>
          </fieldset>
          <fieldset>
            <legend>Client WiFi Setup</legend>
            <p>Settings for WiFi (as Client)</p>
            <div class="input-group fluid">
-             <label aria-hidden="true" for="ap_remote_name">Remote SSID</label>
-             <input aria-hidden="true" type="text" value="{{remote_ap_name}}" id="ap_remote_name" placeholder="Remote AP Name">
+             <label aria-hidden="true" for="wifi_remote_ssid">Remote SSID</label>
+             <input aria-hidden="true" type="text" value="{{wifi_remote_ssid}}" id="wifi_remote_ssid" placeholder="Remote AP Name">
            </div>
            <div class="input-group fluid">
-              <label aria-hidden="true" for="ap_remote_password">Remote SSID Password</label>
-              <input aria-hidden="true"type="password" value="{{remote_ap_password}}" id="ap_remote_password">
+              <label aria-hidden="true" for="wifi_remote_password">Remote SSID Password</label>
+              <input aria-hidden="true" type="password" value="{{wifi_remote_password}}" id="wifi_remote_password">
            </div>
          </fieldset>
       </div>
       <input type="radio" name="navtabs" id="tab2" aria-hidden="true">
-      <label for="tab2" aria-hidden="true">MQTT</label>
+      <label for="tab2" aria-hidden="true">TCP&UDP</label>
       <div style="height: 600px">
         <fieldset>
-          <legend>MQTT Client Configuration</legend>
+          <legend>Server TCP Setup</legend>
+            <p>Settings for the device TCP (as Server)</p>
           <div class="input-group fluid">
-            <label aria-hidden="true" for="mqtt_host">MQTT Host</label>
-            <input aria-hidden="true" type="text" value="{{mqtt_host}}" id="mqtt_host" placeholder="mqtt.example.com">
+            <label aria-hidden="true" for="tcp_local_ip">TCP Server IP</label>
+            <input aria-hidden="true" type="text" value="{{tcp_local_ip}}" id="tcp_local_ip" placeholder="IP">
           </div>
           <div class="input-group fluid">
-            <label aria-hidden="true" for="mqtt_port">MQTT Port</label>
-            <input aria-hidden="true" type="text" value="{{mqtt_port}}" id="mqtt_port" placeholder="1883">
-          </div>
-          <div class="input-group fluid">
-            <label aria-hidden="true" for="mqtt_username">MQTT Username</label>
-            <input aria-hidden="true" type="text" value="{{mqtt_username}}" id="mqtt_username" placeholder="coogleiot">
-          </div>
-          <div class="input-group fluid">
-            <label aria-hidden="true" for="mqtt_password">MQTT Pasword</label>
-            <input aria-hidden="true" type="password" id="mqtt_password" value="{{mqtt_password}}">
-          </div>
-          <div class="input-group fluid">
-            <label aria-hidden="true" for="mqtt_client_id">MQTT Client ID</label>
-            <input aria-hidden="true" type="text" value="{{mqtt_client_id}}" id="mqtt_client_id" placeholder="my-client-id">
+            <label aria-hidden="true" for="tcp_local_port">TCP Server Port</label>
+            <input aria-hidden="true" type="text" value="{{tcp_local_port}}" id="tcp_local_port">
           </div>
         </fieldset>
+           <fieldset>
+             <legend>Client TCP Setup</legend>
+             <p>Settings for TCP (as Client)</p>
+             <div class="input-group fluid">
+               <label aria-hidden="true" for="tcp_remote_host">Remote Host</label>
+               <input aria-hidden="true" value="{{tcp_remote_host}}" id="tcp_remote_host" placeholder="Remote Host" type="text">
+             </div>
+             <div class="input-group fluid">
+                <label aria-hidden="true" for="tcp_remote_port">Remote Port</label>
+                <input aria-hidden="true" value="{{tcp_remote_port}}" id="tcp_remote_port" type="text">
+             </div>
+           </fieldset>
+		   <fieldset>
+             <legend>Server UDP Setup</legend>
+               <p>Settings for the device UDP (as server)</p>
+               <div class="input-group fluid">
+                 <label aria-hidden="true" for="udp_local_ip">Device IP</label>
+                 <input aria-hidden="true" value="{{udp_local_ip}}" id="udp_local_ip" placeholder="Device IP" type="text">
+               </div>
+               <div class="input-group fluid">
+                 <label aria-hidden="true" for="udp_local_port">Device Port</label>
+                 <input aria-hidden="true" value="{{udp_local_port}}" id="udp_local_port" type="text">
+               </div>
+           </fieldset>
+           <fieldset>
+             <legend>Client UDP Setup</legend>
+             <p>Settings for UDP (as Client)</p>
+             <div class="input-group fluid">
+               <label aria-hidden="true" for="udp_remote_host">Remote IP</label>
+               <input aria-hidden="true" value="{{udp_remote_host}}" id="udp_remote_host" placeholder="Remote Host" type="text">
+             </div>
+             <div class="input-group fluid">
+                <label aria-hidden="true" for="udp_remote_port">Remote Port</label>
+                <input aria-hidden="true" value="{{udp_remote_port}}" id="udp_remote_port" type="text">
+             </div>
+           </fieldset>
       </div>
       <input type="radio" name="navtabs" id="tab3" aria-hidden="true">
       <label for="tab3" aria-hidden="true">System</label>
@@ -117,16 +154,15 @@ const char WEBPAGE_Home[] PROGMEM = R"=====(
       <label for="tab4" aria-hidden="true">Status</label>
       <div style="height: 600px">
         <table class="horizontal">
-          <caption>CoogleIOT Status</caption>
+          <caption>ldos Status</caption>
           <thead>
             <tr>
-              <th>CoogleIOT Version</th>
-              <th>CoogleIOT AP Status</th>
-              <th>CoogleIOT AP SSID</th>
+              <th>ldos Version</th>
+              <th>ldos AP Status</th>
+              <th>ldos AP SSID</th>
               <th>WiFi Status</th>
               <th>WiFi SSID</th>
               <th>LAN IP Address</th>
-              <th>MQTT Status</th>
               <th>NTP Status</th>
               <th>DNS Status</th>
               <th>Firmware Updates</th>
@@ -134,13 +170,12 @@ const char WEBPAGE_Home[] PROGMEM = R"=====(
          </thead>
          <tbody>
            <tr>
-             <td data-label="CoogleIOT Version">{{coogleiot_version}}</td>
-             <td data-label="CoogleIOT AP Status">{{coogleiot_ap_status}}</td>
-             <td data-label="CoogleIOT AP SSID">{{coogleiot_ap_ssid}}</td>
+             <td data-label="ldos Version">{{coogleiot_version}}</td>
+             <td data-label="ldos AP Status">{{coogleiot_ap_status}}</td>
+             <td data-label="ldos AP SSID">{{coogleiot_ap_ssid}}</td>
              <td data-label="WiFi Status">{{wifi_status}}</td>
              <td data-label="WiFi SSID">{{remote_ap_name}}</td>
              <td data-label="LAN IP Address">{{wifi_ip_address}}</td>
-             <td data-label="MQTT Status">{{mqtt_status}}</td>
              <td data-label="NTP Status">{{ntp_status}}</td>
              <td data-label="DNS Status">{{dns_status}}</td>
              <td data-label="Firmware Updates">{{firmware_update_status}}</td>
@@ -162,11 +197,6 @@ const char WEBPAGE_Home[] PROGMEM = R"=====(
             'ap_password' : $('#ap_password').val(),
             'remote_ap_name' : $('#ap_remote_name').val(),
             'remote_ap_password' : $('#ap_remote_password').val(),
-            'mqtt_host' : $('#mqtt_host').val(),
-            'mqtt_port' : $('#mqtt_port').val(),
-            'mqtt_username' : $('#mqtt_username').val(),
-            'mqtt_password' : $('#mqtt_password').val(),
-            'mqtt_client_id' : $('#mqtt_client_id').val(),
             'firmware_url' : $('#firmware_url').val()
           }
           

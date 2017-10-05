@@ -134,6 +134,12 @@ class CoogleIOT
         int getBaudrate();
         CoogleIOT& setWiFiMode(int);
         int getWiFiMode();
+        CoogleIOT& setLocalIP(int);
+        int getLocalIP();
+        CoogleIOT& setLocalMask(int);
+        int getLocalMask();
+        CoogleIOT& setLocalGateway(int);
+        int getLocalGateway();
         CoogleIOT& setWiFiLocalSSID(String);
         String getWiFiLocalSSID();
         CoogleIOT& setWiFiLocalPassword(String);
@@ -142,14 +148,22 @@ class CoogleIOT
         String getWiFiRemoteSSID();
         CoogleIOT& setWiFiRemotePassword(String);
         String getWiFiRemotePassword();
+
         CoogleIOT& setTCPMode(int);
         int getTCPMode();
+        CoogleIOT& setTCPLocalIP(int);
+        int getTCPLocalIP();
+        CoogleIOT& setTCPLocalPort(int);
+        int getTCPLocalPort();
         CoogleIOT& setTCPRemoteHost(String);
         String getTCPRemoteHost();
         CoogleIOT& setTCPRemotePort(int);
         int getTCPRemotePort();
+
         CoogleIOT& setUDPMode(int);
         int getUDPMode();
+        CoogleIOT& setUDPLocalIP(int);
+        int getUDPLocalIP();
         CoogleIOT& setUDPRemoteHost(String);
         String getUDPRemoteHost();
         CoogleIOT& setUDPRemotePort(int);

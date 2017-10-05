@@ -42,7 +42,7 @@ CoogleIOTWebserver::CoogleIOTWebserver(CoogleIOT &_iot)
 	setWebserver(new ESP8266WebServer(this->serverPort));
 }
 
-CoogleIOTWebserver::CoogleIOTWebserver(CoogleIOT& _iot, int port)
+CoogleIOTWebserver::CoogleIOTWebserver(CoogleIOT &_iot, int port)
 {
 	setIOT(_iot);
 
@@ -57,7 +57,7 @@ CoogleIOTWebserver::~CoogleIOTWebserver()
 	delete webServer;
 }
 
-CoogleIOTWebserver& CoogleIOTWebserver::initializePages()
+CoogleIOTWebserver &CoogleIOTWebserver::initializePages()
 {
 	webServer->on("/", std::bind(&CoogleIOTWebserver::handleRoot, this));
 	webServer->on("/css", std::bind(&CoogleIOTWebserver::handleCSS, this));
@@ -73,27 +73,26 @@ CoogleIOTWebserver& CoogleIOTWebserver::initializePages()
 	webServer->on("/firmware-upload",
 				  HTTP_POST,
 				  std::bind(&CoogleIOTWebserver::handleFirmwareUploadResponse, this),
-				  std::bind(&CoogleIOTWebserver::handleFirmwareUpload, this)
-	);
+				  std::bind(&CoogleIOTWebserver::handleFirmwareUpload, this));
 
 	webServer->onNotFound(std::bind(&CoogleIOTWebserver::handle404, this));
 
 	return *this;
 }
 
-CoogleIOTWebserver& CoogleIOTWebserver::setServerPort(int port)
+CoogleIOTWebserver &CoogleIOTWebserver::setServerPort(int port)
 {
 	this->serverPort = port;
 	return *this;
 }
 
-CoogleIOTWebserver& CoogleIOTWebserver::setWebserver(ESP8266WebServer* server)
+CoogleIOTWebserver &CoogleIOTWebserver::setWebserver(ESP8266WebServer *server)
 {
 	this->webServer = server;
 	return *this;
 }
 
-CoogleIOTWebserver& CoogleIOTWebserver::setIOT(CoogleIOT& _iot)
+CoogleIOTWebserver &CoogleIOTWebserver::setIOT(CoogleIOT &_iot)
 {
 	this->iot = &_iot;
 	return *this;
@@ -122,38 +121,40 @@ String CoogleIOTWebserver::htmlEncode(char *input)
 	return htmlEncode(i);
 }
 
-String CoogleIOTWebserver::htmlEncode(String& input)
+String CoogleIOTWebserver::htmlEncode(String &input)
 {
 	char t;
 	String retval, escape;
 
-	for(int i = 0; i < input.length(); i++) {
+	for (int i = 0; i < input.length(); i++)
+	{
 		t = input.charAt(i);
-        switch(t) {
-			case '&':
-				escape = "&amp;";
-				break;
+		switch (t)
+		{
+		case '&':
+			escape = "&amp;";
+			break;
 
-			case '<':
-				escape = "&lt;";
-				break;
+		case '<':
+			escape = "&lt;";
+			break;
 
-			case '>':
-				escape = "&gt;";
-				break;
+		case '>':
+			escape = "&gt;";
+			break;
 
-			case '"':
-				escape = "&quot;";
-				break;
+		case '"':
+			escape = "&quot;";
+			break;
 
-			case '\'':
-				escape = "&#39;";
-				break;
+		case '\'':
+			escape = "&#39;";
+			break;
 
-			default:
-				escape = t;
-				break;
-        }
+		default:
+			escape = t;
+			break;
+		}
 
 		retval = retval + escape;
 	}
@@ -163,46 +164,65 @@ String CoogleIOTWebserver::htmlEncode(String& input)
 void CoogleIOTWebserver::handleRoot()
 {
 	String page(FPSTR(WEBPAGE_Home));
-	String ap_name, ap_password, ap_remote_name, ap_remote_password,
-	       mqtt_host, mqtt_username, mqtt_password, mqtt_client_id,
-		   firmware_url, mqtt_port, local_ip, mac_address, wifi_status;
+	String wifi_local_ssid, wifi_local_password, wifi_remote_ssid, wifi_remote_password,
+		wifi_local_ip, wifi_local_mask, wifi_local_gateway,
+		tcp_local_ip, tcp_local_port, tcp_remote_host, tcp_remote_port,
+		udp_local_ip, udp_local_port, udp_remote_host, udp_remote_port,
+		firmware_url, local_ip, mac_address, wifi_status;
 
-	ap_name = iot->getAPName();
-	ap_password = iot->getAPPassword();
-	ap_remote_name = iot->getRemoteAPName();
-	ap_remote_password = iot->getRemoteAPPassword();
-	mqtt_host = iot->getMQTTHostname();
-	mqtt_username = iot->getMQTTUsername();
-	mqtt_password = iot->getMQTTPassword();
-	mqtt_client_id = iot->getMQTTClientId();
+	wifi_local_ip = String(iot->getLocalIP());
+	wifi_local_mask = String(iot->getLocalMask());
+	wifi_local_gateway = String(iot->getLocalGateway());
+
+	wifi_local_ssid = iot->getWiFiLocalSSID();
+	wifi_local_password = iot->getWiFiLocalPassword();
+	wifi_remote_ssid = iot->getWiFiRemoteSSID();
+	wifi_remote_password = iot->getWiFiRemotePassword();
+
+	tcp_local_ip = String(iot->getTCPLocalIP());
+	tcp_local_port = String(iot->getTCPLocalPort());
+	tcp_remote_host = iot->getTCPRemoteHost();
+	tcp_remote_port = String(iot->getTCPRemotePort());
+
+	udp_local_ip = String(iot->getUDPLocalIP());
+	udp_local_port = String(iot->getUDPLocalPort());
+	udp_remote_host = iot->getUDPRemoteHost();
+	udp_remote_port = String(iot->getUDPRemotePort());
+
 	firmware_url = iot->getFirmwareUpdateUrl();
-	mqtt_port = String(iot->getMQTTPort());
 	local_ip = WiFi.localIP().toString();
 	mac_address = WiFi.macAddress();
 	wifi_status = iot->getWiFiStatus();
 
-	page.replace(F("{{ap_name}}"), htmlEncode(ap_name));
-	page.replace(F("{{ap_password}}"), htmlEncode(ap_password));
-	page.replace(F("{{remote_ap_name}}"), htmlEncode(ap_remote_name));
-	page.replace(F("{{remote_ap_password}}"), htmlEncode(ap_remote_password));
-	page.replace(F("{{mqtt_host}}"), htmlEncode(mqtt_host));
-	page.replace(F("{{mqtt_username}}"), htmlEncode(mqtt_username));
-	page.replace(F("{{mqtt_password}}"), htmlEncode(mqtt_password));
-	page.replace(F("{{mqtt_client_id}}"), htmlEncode(mqtt_client_id));
+	page.replace(F("{{wifi_local_ip}}"), htmlEncode(wifi_local_ip));
+	page.replace(F("{{wifi_local_mask}}"), htmlEncode(wifi_local_mask));
+	page.replace(F("{{wifi_local_gateway}}"), htmlEncode(wifi_local_gateway));
+	page.replace(F("{{wifi_local_ssid}}"), htmlEncode(wifi_local_ssid));
+	page.replace(F("{{wifi_local_password}}"), htmlEncode(wifi_local_password));
+	page.replace(F("{{wifi_remote_ssid}}"), htmlEncode(wifi_remote_ssid));
+	page.replace(F("{{wifi_remote_password}}"), htmlEncode(wifi_remote_password));
+
+	page.replace(F("{{tcp_local_ip}}"), htmlEncode(tcp_local_ip));
+	page.replace(F("{{tcp_local_port}}"), htmlEncode(tcp_local_port));
+	page.replace(F("{{tcp_remote_host}}"), htmlEncode(tcp_remote_host));
+	page.replace(F("{{tcp_remote_port}}"), htmlEncode(tcp_remote_port));
+
+	page.replace(F("{{udp_local_ip}}"), htmlEncode(udp_local_ip));
+	page.replace(F("{{udp_local_port}}"), htmlEncode(udp_local_port));
+	page.replace(F("{{udp_remote_host}}"), htmlEncode(udp_remote_host));
+	page.replace(F("{{udp_remote_port}}"), htmlEncode(udp_remote_port));
+
 	page.replace(F("{{firmware_url}}"), htmlEncode(firmware_url));
-	page.replace(F("{{mqtt_port}}"), htmlEncode(mqtt_port));
 	page.replace(F("{{coogleiot_version}}"), htmlEncode(COOGLEIOT_VERSION));
-	page.replace(F("{{coogleiot_ap_ssid}}"), htmlEncode(ap_name));
-	page.replace(F("{{wifi_ip_address}}"), htmlEncode(local_ip));
+	page.replace(F("{{coogleiot_ap_ssid}}"), htmlEncode(wifi_local_ssid));
 	page.replace(F("{{mac_address}}"), htmlEncode(mac_address));
 	page.replace(F("{{wifi_status}}"), htmlEncode(wifi_status));
-	page.replace(F("{{mqtt_status}}"), iot->mqttActive() ? "Active" : "Not Connected");
 	page.replace(F("{{ntp_status}}"), iot->ntpActive() ? "Active" : "Not Connected");
 	page.replace(F("{{dns_status}}"), iot->dnsActive() ? "Active" : "Disabled");
 	page.replace(F("{{firmware_update_status}}"), iot->firmwareClientActive() ? "Active" : "Disabled");
 	page.replace(F("{{coogleiot_ap_status}}"), iot->apStatus() ? "Active" : "Disabled");
 
-    webServer->send(200, "text/html", page.c_str());
+	webServer->send(200, "text/html", page.c_str());
 }
 
 void CoogleIOTWebserver::handleJS()
@@ -223,81 +243,89 @@ void CoogleIOTWebserver::handle404()
 
 void CoogleIOTWebserver::handleFirmwareUploadResponse()
 {
-	if(_manualFirmwareUpdateSuccess) {
+	if (_manualFirmwareUpdateSuccess)
+	{
 		webServer->send_P(200, "text/html", WEBPAGE_Restart);
 		return;
 	}
 
 	webServer->send(200, "text/html", "There was an error uploading the firmware");
-
 }
 
 void CoogleIOTWebserver::handleFirmwareUpload()
 {
-	HTTPUpload& upload = webServer->upload();
+	HTTPUpload &upload = webServer->upload();
 	uint32_t maxSketchSpace;
 
-	switch(upload.status) {
-		case UPLOAD_FILE_START:
-			WiFiUDP::stopAll();
+	switch (upload.status)
+	{
+	case UPLOAD_FILE_START:
+		WiFiUDP::stopAll();
 
-			iot->info("Receiving Firmware Upload...");
+		iot->info("Receiving Firmware Upload...");
 
-			maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+		maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 
-			if(!Update.begin(maxSketchSpace)) {
-				iot->error("Failed to begin Firmware Upload!");
+		if (!Update.begin(maxSketchSpace))
+		{
+			iot->error("Failed to begin Firmware Upload!");
 
-				if(iot->serialEnabled()) {
-					Update.printError(Serial);
-				}
-
-				_manualFirmwareUpdateSuccess = false;
+			if (iot->serialEnabled())
+			{
+				Update.printError(Serial);
 			}
-
-			break;
-		case UPLOAD_FILE_WRITE:
-
-			if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-
-				iot->error("Failed to write Firmware Upload!");
-
-				if(iot->serialEnabled()) {
-					Update.printError(Serial);
-				}
-
-				_manualFirmwareUpdateSuccess = false;
-			}
-			break;
-
-		case UPLOAD_FILE_END:
-
-			if(Update.end(true)) {
-
-				iot->info("Firmware updated!");
-
-				_manualFirmwareUpdateSuccess = true;
-
-			} else {
-				iot->error("Failed to update Firmware!");
-
-				if(iot->serialEnabled()) {
-					Update.printError(Serial);
-				}
-
-				_manualFirmwareUpdateSuccess = false;
-			}
-
-			break;
-
-		case UPLOAD_FILE_ABORTED:
-			Update.end();
-
-			iot->info("Firmware upload aborted!");
 
 			_manualFirmwareUpdateSuccess = false;
+		}
 
-			break;
+		break;
+	case UPLOAD_FILE_WRITE:
+
+		if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+		{
+
+			iot->error("Failed to write Firmware Upload!");
+
+			if (iot->serialEnabled())
+			{
+				Update.printError(Serial);
+			}
+
+			_manualFirmwareUpdateSuccess = false;
+		}
+		break;
+
+	case UPLOAD_FILE_END:
+
+		if (Update.end(true))
+		{
+
+			iot->info("Firmware updated!");
+
+			_manualFirmwareUpdateSuccess = true;
+		}
+		else
+		{
+			iot->error("Failed to update Firmware!");
+
+			if (iot->serialEnabled())
+			{
+				Update.printError(Serial);
+			}
+
+			_manualFirmwareUpdateSuccess = false;
+		}
+
+		break;
+
+	case UPLOAD_FILE_ABORTED:
+		Update.end();
+
+		iot->info("Firmware upload aborted!");
+
+		_manualFirmwareUpdateSuccess = false;
+
+		break;
 	}
 
 	yield();
@@ -308,107 +336,143 @@ void CoogleIOTWebserver::handleSubmit()
 	StaticJsonBuffer<200> jsonBuffer;
 	WiFiClientPrint<> p(webServer->client());
 
-	JsonObject& retval = jsonBuffer.createObject();
-	JsonArray& errors = retval.createNestedArray("errors");
+	JsonObject &retval = jsonBuffer.createObject();
+	JsonArray &errors = retval.createNestedArray("errors");
 
-	String ap_name, ap_password, remote_ap_name, remote_ap_password,
-	       mqtt_host, mqtt_port, mqtt_username, mqtt_password, mqtt_client_id,
-		   firmware_url;
+	String wifi_local_ssid, wifi_local_password, wifi_remote_ssid, wifi_remote_password,
+		tcp_local_ip, tcp_local_port, tcp_remote_host, tcp_remote_port,
+		udp_local_ip, udp_local_port, udp_remote_host, udp_remote_port,
+		firmware_url;
 
 	bool success = true;
 
-	ap_name = webServer->arg("ap_name");
-	ap_password = webServer->arg("ap_password");
-	remote_ap_name = webServer->arg("remote_ap_name");
-	remote_ap_password = webServer->arg("remote_ap_password");
-	mqtt_host = webServer->arg("mqtt_host");
-	mqtt_port = webServer->arg("mqtt_port");
-	mqtt_username = webServer->arg("mqtt_username");
-	mqtt_password = webServer->arg("mqtt_password");
-	mqtt_client_id = webServer->arg("mqtt_client_id");
+	wifi_local_ssid = webServer->arg("wifi_local_ssid");
+	wifi_local_password = webServer->arg("wifi_local_password");
+	wifi_remote_ssid = webServer->arg("wifi_remote_ssid");
+	wifi_remote_password = webServer->arg("wifi_remote_password");
+
+	tcp_local_ip = webServer->arg("tcp_local_ip");
+	tcp_local_port = webServer->arg("tcp_local_port");
+	tcp_remote_host = webServer->arg("tcp_remote_host");
+	tcp_remote_port = webServer->arg("tcp_remote_port");
+
+	udp_local_ip = webServer->arg("udp_local_ip");
+	udp_local_port = webServer->arg("udp_local_port");
+	udp_remote_host = webServer->arg("udp_remote_host");
+	udp_remote_port = webServer->arg("udp_remote_port");
+
 	firmware_url = webServer->arg("firmware_url");
 
-	if(ap_name.length() > 0) {
-		if(ap_name.length() < COOGLEIOT_AP_NAME_MAXLEN) {
-			iot->setAPName(ap_name);
-		} else {
+	if (wifi_local_ssid.length() > 0)
+	{
+		if (wifi_local_ssid.length() < WIFI_LOCAL_IP_ADDR_END - WIFI_LOCAL_IP_ADDR_START)
+		{
+			iot->setWiFiLocalSSID(wifi_local_ssid);
+		}
+		else
+		{
 			errors.add("AP Name was too long");
 			success = false;
 		}
 	}
 
-	if(ap_password.length() < COOGLEIOT_AP_PASSWORD_MAXLEN) {
-		iot->setAPPassword(ap_password);
-	} else {
+	if (wifi_local_password.length() < WIFI_LOCAL_PASSWORD_ADDR_END - WIFI_LOCAL_PASSWORD_ADDR_START)
+	{
+		iot->setWiFiLocalPassword(wifi_local_password);
+	}
+	else
+	{
 		errors.add("AP Password is too long!");
 		success = false;
 	}
 
-	if(remote_ap_name.length() > 0) {
-		if(remote_ap_name.length() < COOGLEIOT_REMOTE_AP_NAME_MAXLEN) {
-			iot->setRemoteAPName(remote_ap_name);
-		} else {
+	if (wifi_remote_ssid.length() > 0)
+	{
+		if (wifi_remote_ssid.length() < WIFI_REMOTE_SSID_ADDR_END - WIFI_REMOTE_SSID_ADDR_START)
+		{
+			iot->setWiFiRemoteSSID(wifi_remote_ssid);
+		}
+		else
+		{
 			errors.add("Remote AP Name is too long!");
 			success = false;
 		}
 	}
 
-	if(remote_ap_password.length() < COOGLEIOT_REMOTE_AP_PASSWORD_MAXLEN) {
-		iot->setRemoteAPPassword(remote_ap_password);
-	} else {
+	if (wifi_remote_password.length() < WIFI_REMOTE_PASSWORD_ADDR_END - WIFI_REMOTE_PASSWORD_ADDR_START)
+	{
+		iot->setWiFiRemotePassword(wifi_remote_password);
+	}
+	else
+	{
 		errors.add("Remote AP Password was too long!");
 		success = false;
 	}
 
-	if(mqtt_host.length() > 0) {
-		if(mqtt_host.length() < COOGLEIOT_MQTT_HOST_MAXLEN) {
-			iot->setMQTTHostname(mqtt_host);
-		} else {
-			errors.add("The MQTT Hostname was too long!");
+	if (tcp_local_ip.length() > 0)
+	{
+		iot->setTCPLocalIP(atoi(tcp_local_ip.c_str()));
+	}
+
+	if (tcp_local_port.length() > 0)
+	{
+		iot->setTCPLocalPort(atoi(tcp_local_port.c_str()));
+	}
+
+	if (tcp_remote_host.length() > 0)
+	{
+		if (tcp_remote_host.length() < TCP_REMOTE_HOST_ADDR_END - TCP_REMOTE_HOST_ADDR_START)
+		{
+			iot->setTCPRemoteHost(tcp_remote_host);
+		}
+		else
+		{
+			errors.add("TCP Remote Host Name is too long!");
 			success = false;
 		}
 	}
 
-	if(mqtt_port.length() > 0) {
-		if(mqtt_port.toInt() > 0) {
-			iot->setMQTTPort(mqtt_port.toInt());
-		} else {
-			errors.add("The MQTT Port was Invalid");
+	if (tcp_remote_port.length() > 0)
+	{
+		iot->setTCPRemotePort(atoi(tcp_remote_port.c_str()));
+	}
+
+	if (udp_local_ip.length() > 0)
+	{
+		iot->setUDPLocalIP(atoi(udp_local_ip.c_str()));
+	}
+
+	if (udp_local_port.length() > 0)
+	{
+		iot->setUDPLocalPort(atoi(udp_local_port.c_str()));
+	}
+
+	if (udp_remote_host.length() > 0)
+	{
+		if (udp_remote_host.length() < UDP_REMOTE_HOST_ADDR_END - UDP_REMOTE_HOST_ADDR_START)
+		{
+			iot->setUDPRemoteHost(udp_remote_host);
+		}
+		else
+		{
+			errors.add("UDP Remote Host Name is too long!");
 			success = false;
 		}
 	}
 
-	if(mqtt_username.length() > 0) {
-		if(mqtt_username.length() < COOGLEIOT_MQTT_USER_MAXLEN) {
-			iot->setMQTTUsername(mqtt_username);
-		} else {
-			errors.add("The MQTT Username was too long");
-			success = false;
-		}
+	if (udp_remote_port.length() > 0)
+	{
+		iot->setUDPRemotePort(atoi(udp_remote_port.c_str()));
 	}
 
-	if(mqtt_password.length() > 0) {
-		if(mqtt_password.length() < COOGLEIOT_MQTT_USER_PASSWORD_MAXLEN) {
-			iot->setMQTTPassword(mqtt_password);
-		} else {
-			errors.add("The MQTT Password was too long");
-			success = false;
-		}
-	}
-
-	if(mqtt_client_id.length() > 0) {
-		if(mqtt_client_id.length() < COOGLEIOT_MQTT_CLIENT_ID_MAXLEN) {
-			iot->setMQTTClientId(mqtt_client_id);
-		} else {
-			errors.add("The MQTT Client ID was too long");
-			success = false;
-		}
-	}
-
-	if(firmware_url.length() > 0) {
-		if(firmware_url.length() < COOGLEIOT_FIRMWARE_UPDATE_URL_MAXLEN) {
+	if (firmware_url.length() > 0)
+	{
+		if (firmware_url.length() < COOGLEIOT_FIRMWARE_UPDATE_URL_MAXLEN)
+		{
 			iot->setFirmwareUpdateUrl(firmware_url);
-		} else {
+		}
+		else
+		{
 			errors.add("The Firmware Update URL was too long");
 			success = false;
 		}
@@ -421,7 +485,6 @@ void CoogleIOTWebserver::handleSubmit()
 
 	retval.printTo(p);
 	p.stop();
-
 }
 
 void CoogleIOTWebserver::handleReset()
@@ -450,7 +513,7 @@ void CoogleIOTWebserver::handleApiStatus()
 	StaticJsonBuffer<200> jsonBuffer;
 	WiFiClientPrint<> p(webServer->client());
 
-	JsonObject& retval = jsonBuffer.createObject();
+	JsonObject &retval = jsonBuffer.createObject();
 
 	retval["status"] = !iot->_restarting;
 
@@ -458,5 +521,4 @@ void CoogleIOTWebserver::handleApiStatus()
 	webServer->send(200, "application/json", "");
 	retval.printTo(p);
 	p.stop();
-
 }
