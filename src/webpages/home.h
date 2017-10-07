@@ -193,10 +193,21 @@ const char WEBPAGE_Home[] PROGMEM = R"=====(
           e.preventDefault();
           
           var postData = {
-            'ap_name' : $('#ap_name').val(),
-            'ap_password' : $('#ap_password').val(),
-            'remote_ap_name' : $('#ap_remote_name').val(),
-            'remote_ap_password' : $('#ap_remote_password').val(),
+            'wifi_local_ssid' : $('#wifi_local_ssid').val(),
+            'wifi_local_password' : $('#wifi_local_password').val(),
+            'wifi_local_ip' : $('#wifi_local_ip').val(),
+            'wifi_local_mask' : $('#wifi_local_mask').val(),
+            'wifi_local_gateway' : $('#wifi_local_gateway').val(),
+            'wifi_remote_ssid' : $('#wifi_remote_ssid').val(),
+            'wifi_remote_password' : $('#wifi_remote_password').val(),
+            'tcp_local_ip' : $('#tcp_local_ip').val(),
+            'tcp_local_port' : $('#tcp_local_port').val(),
+            'tcp_remote_host' : $('#tcp_remote_host').val(),
+            'tcp_remote_port' : $('#tcp_remote_port').val(),
+            'udp_local_ip' : $('#udp_local_ip').val(),
+            'udp_local_port' : $('#udp_local_port').val(),
+            'udp_remote_host' : $('#udp_remote_host').val(),
+            'udp_remote_port' : $('#udp_remote_port').val(),
             'firmware_url' : $('#firmware_url').val()
           }
           

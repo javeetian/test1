@@ -94,22 +94,6 @@ void setup()
 
 	digitalWrite(OPEN_SWTICH_PIN, LOW);
 
-	if(iot->mqttActive()) {
-		mqtt = iot->getMQTTClient();
-
-		mqtt->setCallback(mqttCallbackHandler);
-		mqtt->subscribe(GARAGE_DOOR_ACTION_TOPIC);
-		mqtt->publish(GARAGE_DOOR_STATUS_TOPIC, getDoorStateAsString(_currentState).c_str(), true);
-
-		if(iot->serialEnabled()) {
-			Serial.println("Garage Door Opener Initialized");
-		}
-
-	} else {
-		if(iot->serialEnabled()) {
-			Serial.println("ERROR: MQTT Not Initialized!");
-		}
-	}
 }
 
 void loop()
@@ -118,58 +102,4 @@ void loop()
 
 	iot->loop();
 
-	if(iot->mqttActive()) {
-		liveState = getGarageDoorState();
-
-		if(liveState != _currentState) {
-			mqtt->publish(GARAGE_DOOR_STATUS_TOPIC, getDoorStateAsString(liveState).c_str(), true);
-			_currentState = liveState;
-		}
-	}
-
-}
-
-void mqttCallbackHandler(char *topic, byte *payload, unsigned int length)
-{
-	String action;
-	char *payloadStr;
-
-	// This is annoying, payload is not null-terminated as a string,
-	// and the String class doesn't let us initialize it with a defined-length
-	// so we need to create our own first.
-
-	payloadStr = (char *)malloc(length + 1);
-	memcpy(payloadStr, payload, length);
-	payloadStr[length] = NULL;
-	action = String(payloadStr);
-	free(payloadStr);
-
-	// We support three commands. The first is just an integer which represents
-	// a frequency in MS to toggle the switch on/off. My particular garage door
-	// uses a frequency like this to distinguish between open/close and other actions
-	// like turn on the integrate garage light or not.
-
-	if(action.toInt() > 0) {
-
-		if(iot->serialEnabled()) {
-			Serial.printf("Toggling at frequency of %d ms (5 iterations)\n", action.toInt());
-		}
-
-		toggleActionPin(action.toInt(), 5);
-		return;
-	}
-
-	if(action.equals("open") || action.equals("close")) {
-
-		if(iot->serialEnabled()) {
-			Serial.println("Toggled at button-press frequency");
-		}
-
-		toggleActionPin(1000, 1);
-		return;
-	} else {
-		if(iot->serialEnabled()) {
-			Serial.printf("Unknown Command issued: %s\n", action.c_str());
-		}
-	}
 }

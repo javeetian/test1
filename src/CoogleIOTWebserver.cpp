@@ -333,7 +333,7 @@ void CoogleIOTWebserver::handleFirmwareUpload()
 
 void CoogleIOTWebserver::handleSubmit()
 {
-	StaticJsonBuffer<200> jsonBuffer;
+	StaticJsonBuffer<400> jsonBuffer;
 	WiFiClientPrint<> p(webServer->client());
 
 	JsonObject &retval = jsonBuffer.createObject();
